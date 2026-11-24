@@ -107,7 +107,17 @@
 .production-actions{display:flex;gap:8px;margin-top:22px}
 .production-actions .btn{flex:1;min-height:42px}
 .production-actions .btn.soft{background:#f4f4f2;color:#333;border:1px solid #ddd}
-.topnav button[data-step="0"]{display:none}
+.modu-view .intro{display:block;min-height:calc(100vh - 86px);overflow:hidden;padding:0}
+.modu-view .intro>div{position:relative;width:100%;min-height:calc(100vh - 86px)}
+.modu-view .intro .shapes{position:absolute;inset:0;width:100%;height:100%;margin:0;display:block}
+.modu-view .intro .shape{left:50%;top:50%;width:clamp(58px,11vw,150px);height:clamp(58px,11vw,150px);border-radius:clamp(16px,2.2vw,30px)}
+.modu-view .intro .shape:nth-child(1){--sx:-30vw;--sy:-14vh;--rot:-18deg;width:clamp(170px,29vw,390px);height:clamp(150px,25vw,330px);border-radius:clamp(42px,7vw,90px);clip-path:polygon(12% 100%,0 82%,37% 8%,52% 0,100% 54%,77% 100%)}
+.modu-view .intro .shape:nth-child(2){--sx:-4vw;--sy:-14vh;--rot:14deg;width:clamp(170px,29vw,390px);height:clamp(150px,25vw,330px);border-radius:clamp(42px,7vw,90px);clip-path:polygon(0 54%,48% 0,63% 8%,100% 82%,88% 100%,22% 100%)}
+.modu-view .intro .shape:nth-child(3){--sx:-20vw;--sy:29vh;--rot:0deg;width:clamp(180px,30vw,400px);height:clamp(180px,30vw,400px);background:linear-gradient(135deg,#8fba8c 0 50%,#7b97cf 50%);border-radius:50%}
+.modu-view .intro .shape:nth-child(4){--sx:24vw;--sy:15vh;--rot:0deg;width:clamp(180px,30vw,400px);height:clamp(150px,25vw,330px);background:linear-gradient(135deg,#fec861 0 50%,#7b97cf 50%);border-radius:0 45% 45% 0}
+.modu-view .intro .shape:nth-child(5){--sx:25vw;--sy:-33vh;--rot:0deg;width:clamp(48px,8vw,108px);height:clamp(48px,8vw,108px);background:#998adb;border-radius:clamp(12px,1.8vw,24px)}
+.modu-view .intro .shape:nth-child(1)::after{content:"";position:absolute;width:clamp(34px,5.6vw,76px);height:clamp(34px,5.6vw,76px);border-radius:50%;background:#998adb;left:clamp(-150px,-14vw,-80px);bottom:clamp(-210px,-22vh,-115px)}
+.modu-view .intro .logo-image-wrap,.modu-view .intro .intro-title,.modu-view .intro .btn{display:none}
 .production-dialog.production-animation{width:min(720px,100%);min-height:min(680px,calc(100vh - 40px));display:grid;place-items:center;padding:38px;background:#fff;text-align:center;overflow:hidden}
 .production-animation .production-close{z-index:2}
 .production-sequence{height:260px;width:min(520px,90vw);position:relative;display:flex;align-items:center;justify-content:center}
@@ -329,7 +339,7 @@ function restoreWhoAnswers(){try{const raw=localStorage.getItem(WHO_STORAGE_KEY)
 WHO_IDS.forEach(id=>document.getElementById(id).addEventListener('input',()=>{
  saveWhoAnswers();if(state.step===4)renderBuild();
 }));
-function go(n){saveWhoAnswers();document.getElementById("topnav").classList.toggle("is-hidden",n===0);state.step=n;document.querySelectorAll(".page").forEach((p,i)=>p.classList.toggle("active",i===n));document.querySelectorAll("#topnav button").forEach(b=>b.classList.toggle("active",Number(b.dataset.step)===n));if(n===2)renderChoices();if(n===3)renderComponents();if(n===4)renderBuild();window.scrollTo({top:0,behavior:"smooth"})}
+function go(n){saveWhoAnswers();document.getElementById("topnav").classList.remove("is-hidden");document.body.classList.toggle("modu-view",n===0);state.step=n;document.querySelectorAll(".page").forEach((p,i)=>p.classList.toggle("active",i===n));document.querySelectorAll("#topnav button").forEach(b=>b.classList.toggle("active",Number(b.dataset.step)===n));if(n===2)renderChoices();if(n===3)renderComponents();if(n===4)renderBuild();window.scrollTo({top:0,behavior:"smooth"})}
 document.querySelectorAll("#topnav button").forEach(b=>b.addEventListener("click",()=>go(Number(b.dataset.step))));
 function renderBodies(){document.getElementById("bodyPicks").innerHTML=bodies.map((b,i)=>`<button class="body-pick ${state.body===i+1?"selected":""}" onclick="selectBody(${i+1})"><img src="${bodyImage(i+1)}" alt=""><span>${b}</span></button>`).join("")}
 function selectBody(n){state.body=n;renderBodies();if(state.step>=3)renderComponents()}
