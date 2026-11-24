@@ -315,6 +315,15 @@ function setFaceDetailTab(kind){if(!['freckles','faceMole','faceScar'].includes(
 function selectFaceMark(kind,id){const styles=kind==='faceMole'?faceMoleStyles:kind==='faceScar'?faceScarStyles:[];if(!styles.some(s=>s.id===id))return;state[kind]=id;renderFreckles();renderBodies();if(state.step===3)renderComponents();if(state.step===4)renderBuild()}
 
 function skinKey(n){return n+":"+(state.skinTone||"original")+":"+state.freckles+":"+state.faceMole+":"+state.faceScar}
+// Garment and brace outlines use the body images' native pixel coordinates.
+const protectedBodyAreas=[
+ "M73 279 Q122 303 181 279 Q198 327 205 391 Q170 386 133 397 Q98 387 49 387 Q55 333 73 279Z",
+ "M65 83 L76 81 Q76 129 106 132 Q133 135 137 85 L151 87 Q151 118 157 146 L151 174 Q130 191 110 179 Q86 175 64 183 L55 175 Q59 144 56 128Z M56 249 Q107 282 152 251 Q170 280 174 317 Q139 316 106 335 Q77 320 35 316 Q39 280 56 249Z",
+ "M57 247 Q107 269 154 247 Q165 271 176 339 Q141 345 110 349 Q80 344 38 340 Q43 288 57 247Z",
+ "M111 101 L122 100 Q118 137 147 139 Q176 143 177 100 L187 103 Q190 128 197 143 Q204 162 195 181 Q174 173 153 173 Q125 178 105 185 Q98 168 103 148Z M91 232 Q142 262 205 232 Q217 252 223 282 Q185 285 148 307 Q115 288 76 287 Q76 255 91 232Z",
+ "M68 227 Q130 243 200 230 L197 247 Q170 230 147 254 Q135 263 131 281 Q126 257 111 248 Q91 236 70 247Z M56 284 Q89 267 119 278 L108 415 L64 417Z M151 369 L193 369 L190 411 L152 415Z",
+ "M85 96 L96 90 Q85 132 124 133 Q151 131 149 90 L160 95 Q159 119 170 137 Q181 155 174 173 Q149 169 125 163 Q101 163 70 176 Q61 162 70 139Z M61 207 Q116 228 180 207 L184 226 Q166 218 147 224 Q127 231 121 253 Q111 231 91 225 Q74 219 56 230Z M59 297 Q85 283 114 300 L107 413 L65 414Z M134 309 Q158 316 185 309 L164 415 L133 415Z"
+];
 function bodyImage(n){
  const key=skinKey(n);if(!state.skinTone&&state.freckles==='none'&&state.faceMole==='none'&&state.faceScar==='none')return asset("body"+n+".png");
  if(skinCache.has(key))return skinCache.get(key);
@@ -327,11 +336,17 @@ function bodyImage(n){
     const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0);
     const pixels=ctx.getImageData(0,0,c.width,c.height),p=pixels.data;
     const rgb=(tone||"#EAC7B1").slice(1).match(/[a-f0-9]{2}/gi).map(h=>parseInt(h,16));
+    let protectedPixels;
+    if(tone){
+     ctx.clearRect(0,0,c.width,c.height);
+     ctx.fill(new Path2D(protectedBodyAreas[n-1]));
+     protectedPixels=ctx.getImageData(0,0,c.width,c.height).data;
+    }
     for(let i=0;tone&&i<p.length;i+=4){
      const r=p[i],g=p[i+1],b=p[i+2];
      if(p[i+3]===0)continue;
      // Warm pink skin is distinct from cool grey clothes, braces and chair.
-     const mask=Math.min(1,Math.max(0,(r-b-2)/5))*Math.min(1,Math.max(0,(r-g-1)/4));
+     const mask=(1-protectedPixels[i+3]/255)*Math.min(1,Math.max(0,(r-b-2)/5))*Math.min(1,Math.max(0,(r-g-1)/4));
      if(mask===0)continue;
      const light=(.2126*r+.7152*g+.0722*b)/220;
      for(let j=0;j<3;j++){
