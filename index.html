@@ -107,6 +107,15 @@
 .production-actions{display:flex;gap:8px;margin-top:22px}
 .production-actions .btn{flex:1;min-height:42px}
 .production-actions .btn.soft{background:#f4f4f2;color:#333;border:1px solid #ddd}
+.topnav button[data-step="0"]{display:none}
+.production-dialog.production-animation{width:min(720px,100%);min-height:min(680px,calc(100vh - 40px));display:grid;place-items:center;padding:38px;background:#fff;text-align:center;overflow:hidden}
+.production-animation .production-close{z-index:2}
+.production-sequence{height:260px;width:min(520px,90vw);position:relative;display:flex;align-items:center;justify-content:center}
+.production-sequence .shape{animation-duration:4.8s}
+.production-animation .logo-image-wrap{width:min(440px,78vw);margin:6px auto 14px;animation:productionLogoReveal 4.8s ease-in-out 1 forwards}
+.production-animation .intro-title{animation:productionTaglineReveal 4.8s ease-in-out 1 forwards}
+@keyframes productionLogoReveal{0%,50%{opacity:0;transform:translateY(9px) scale(.98)}66%,100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes productionTaglineReveal{0%,65%{opacity:0;transform:translateY(7px)}78%,100%{opacity:1;transform:translateY(0)}}
 .access-note{margin-top:18px;background:#dfeaf7;padding:15px;border-radius:5px;font-size:11px;line-height:1.7}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:4px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:10}.toast.show{opacity:1}
 @media(max-width:800px){.nav-logo{width:82px;left:12px}.topnav{padding-left:84px}.app{padding:12px}.page{padding:22px 18px}.topnav{gap:12px}.topnav button{font-size:9px;letter-spacing:.08em}.condition-layout{grid-template-columns:1fr}.components-grid{grid-template-columns:1fr}.component-preview{grid-row:1;min-height:390px}.color-panel{flex-direction:row;gap:22px;align-items:center}.my-mod{margin:0}.build-layout{grid-template-columns:1fr}.choice-card{min-height:140px}}
@@ -192,16 +201,14 @@
     </section>
   </main>
 </div>
-<div class="production-modal" id="productionModal" hidden role="dialog" aria-modal="true" aria-labelledby="productionTitle" aria-describedby="productionDescription">
+<div class="production-modal" id="productionModal" hidden role="dialog" aria-modal="true" aria-label="MODU 제작 애니메이션" aria-describedby="productionDescription">
   <div class="production-backdrop" onclick="closeProductionInfo()"></div>
-  <section class="production-dialog" role="document">
+  <section class="production-dialog production-animation" role="document">
     <button class="production-close" type="button" onclick="closeProductionInfo()" aria-label="닫기">×</button>
-    <p class="overline">MODU BUILD</p>
-    <h2 id="productionTitle">실제 제작 안내</h2>
-    <p id="productionDescription">현재 MODU BUILD는 나만의 조합을 미리 확인하고 이미지로 저장하는 시제품입니다.</p>
-    <p class="production-notice">실제 주문·결제·제작 접수 기능은 아직 연결되어 있지 않습니다. 완성한 조합을 이미지로 저장한 뒤 제작 업체에 전달해 주세요.</p>
+    <div class="production-sequence" aria-label="컬러 조각이 MODU 로고로 모이는 애니메이션"><span class="shape"></span><span class="shape"></span><span class="shape"></span><span class="shape"></span><span class="shape"></span></div>
+    <div id="productionLogo" aria-live="polite"></div>
+    <p id="productionDescription" class="intro-title">BUILD YOUR MOD</p>
     <div class="production-actions">
-      <button class="btn production-btn" type="button" onclick="closeProductionInfo();savePNG()">이미지 저장하기</button>
       <button class="btn soft" type="button" onclick="closeProductionInfo()">닫기</button>
     </div>
   </section>
@@ -354,7 +361,7 @@ function renderBuild(){
  list+='<div class="summary-item">주근깨 · '+freckleStyles.find(t=>t.id===state.freckles).name+'</div>';list+='<div class="summary-item">얼굴 점 · '+faceMoleStyles.find(t=>t.id===state.faceMole).name+'</div><div class="summary-item">얼굴 흉터 · '+faceScarStyles.find(t=>t.id===state.faceScar).name+'</div>';document.getElementById('summaryList').innerHTML=list+'<div class="summary-item">피부색 · '+(skinTones.find(t=>t.hex===state.skinTone)?.name||'원본')+'</div>';
 }
 function toast(msg){let t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
-function openProductionInfo(){const modal=document.getElementById("productionModal");modal.hidden=false;document.body.style.overflow="hidden";const close=modal.querySelector(".production-close");if(close)close.focus()}
+function openProductionInfo(){const modal=document.getElementById("productionModal");const sequence=modal.querySelector(".production-sequence");sequence.replaceWith(sequence.cloneNode(true));document.getElementById("productionLogo").innerHTML=document.querySelector(".logo-image-wrap").outerHTML;modal.hidden=false;document.body.style.overflow="hidden";const close=modal.querySelector(".production-close");if(close)close.focus()}
 function closeProductionInfo(){const modal=document.getElementById("productionModal");if(!modal)return;modal.hidden=true;document.body.style.overflow=""}
 document.addEventListener("keydown",event=>{if(event.key==="Escape"){const modal=document.getElementById("productionModal");if(modal&&!modal.hidden)closeProductionInfo()}});
 function restart(){try{localStorage.removeItem(WHO_STORAGE_KEY)}catch(e){}state.faceMole="none";state.faceScar="none";faceDetailTab="freckles";state.freckles="none";renderFreckles();state.skinTone=null;renderSkinTones();state.body=1;state.tatCat="face";state.tattoos=[];state.filter="all";state.selected=[];state.color="#998ADB";["skin","bodyText","taste","expression"].forEach(id=>document.getElementById(id).value="");renderBodies();renderTattoos();go(0)}
